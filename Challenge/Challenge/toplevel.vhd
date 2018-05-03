@@ -12,8 +12,8 @@ end PulseWidthMod;
 architecture Beh of PulseWidthMod is
 begin
 	process (clock, Reset)
-		variable count : integer range 0 to 255;
-		variable pulseHigh : integer range 0 to 255;
+		variable count : integer range 0 to 255; --counter
+		variable pulseHigh : integer range 0 to 255; --width of high input signal
 	begin
 		if Reset = '1' then -- mealey reset
 			pwm <= '0'; -- set the output to 0
@@ -28,10 +28,9 @@ begin
 
 		pulseHigh := to_integer(unsigned(width)); --typecast vector to integer
 		if count < pulseHigh then -- while the count is less than the input width vector
-				pwm <= '1';
+				pwm <= '1'; --initially high
 			else
-				pwm <= '0'; 
+				pwm <= '0'; --set to low for remainder of period
 			end if;
 	end process;
 end Beh;
-
