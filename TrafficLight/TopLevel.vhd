@@ -34,24 +34,16 @@ entity Traffic is
 end Traffic;
 
 architecture Behavioral of Traffic is
-
--- Encoding for lights
-constant RED   : std_logic_vector(1 downto 0) := "00";
-constant AMBER : std_logic_vector(1 downto 0) := "01";
-constant GREEN : std_logic_vector(1 downto 0) := "10";
-constant WALK  : std_logic_vector(1 downto 0) := "11";
-
-type StateType is (NSGreen, NSAmber, EWGreen, EWAmber);
-signal State, Nextstate : Statetype;
-
-signal PEW, PNS : std_logic;
-
+	--synched inputs
+	signal SynchPedEW, SynchPedNS, SynchCarEW, SynchCarNS : std_logic;
+	--delay values
+	signal delay_1s : STD_LOGIC;
 begin
    -- Show reset status on FPGA LED
    debugLed <= Reset; 
    
    -- Threee LEDs for debug 
-   LEDs     <= "000";
+   LEDs <= "000";
    
 	--4 different states
 	--timer to extend time on each state
@@ -72,81 +64,48 @@ begin
 	--counter (timer to delay state change)
 	--pedestrian lights
 	--car presence changes lights (States) starts the counters
-	--synchronise inputs
+	--synchronise inputs / done i think
 	
-	synchronous:
-	process(clock, reset)
+	inputSynch: --synchronise inputs through a flipflop
+	process(clock, reset, CarEW, CarNS, PedEW, PedNS)
 	begin
-		PNS <= '0';
-		PEW <= '0';
-		if reset = '1' then --asynchronous reset to reset all synchnous circuits
-			state <= EWGreen;		-- not used to reset timer
-		elsif rising_edge(Clock) then
-			state <= Nextstate;
-			if PedEW = '1' then
-				PEW <= '1';
-			end if;
-			if PedNS = '1' then
-				PNS <= '1';
-			end if;
+		if reset = '1' then
+			SynchCarEW <= '0';
+			SynchCarNS <= '0';
+			SynchPedEW <= '0';
+			SynchPedNS <= '0';
+		elsif rising_edge(clock) then
+			SynchCarEW <= CarEW;
+			SynchCarNS <= CarNS;
+			SynchPedEW <= PedEW;
+			SynchPedNS <= PedNS;
 		end if;
 	end process;
 	
-	combinational:
-	process(state, PNS, PEW)
-	begin
-
-   LightsEW <= RED;
-   LightsNS <= RED;
-	Nextstate <= State;
-	
-	case state is
-		when NSGreen =>
-			if PNS = '1' then
-				LightsNS <= WALK;
-				PNS <= '0';
-			else
-				LightsNS <= GREEN;
-			end if;
-			Nextstate <= NSAmber;
-			
-		when NSAmber =>
-			LightsNS <= AMBER;
-			Nextstate <= EWGreen;
-		when EWGreen =>
-			if PEW = '1' then
-				LightsEW <= WALK;
-				PEW <= '0';
-			else
-				LightsEW <= GREEN;
-			end if;
-			Nextstate <= EWAmber;
-			
-		when EWAmber =>
-			LightsEW <= AMBER;
-			Nextstate <= NSGreen;
-	end case;
-	end process;
+	Counter:
+	Entity work.Counter
+   Port Map (
+           Reset => Reset,
+           Clock => Clock 
+           );
+			  
+	Controller:
+	Entity work.Controller
+   Port Map (
+           reset => reset,
+           clock => clock,
+           
+           -- External Inputs
+           PedEW => SynchPedEW, 
+			  PedNS => SynchPedNS, 
+			  CarEW => SynchCarEW, 
+			  CarNS => SynchCarNS,
+           
+           -- External Outputs
+           LightsEW => LightsEW,
+			  LightsNS => LightsNS,
+           
+           -- Counter control
+			  delay_1s => delay_1s
+           );
 end;
-
---library IEEE;
---use IEEE.STD_LOGIC_1164.ALL;
---use IEEE.STD_LOGIC_ARITH.ALL;
---use IEEE.STD_LOGIC_UNSIGNED.ALL;
---entity counter is 
-	--Port (delay1 : in unsigned,
-	--		delay2 : in unigned); 
---end counter;
-
---architecture bah of Counter is
---begin
---synchrnous:
---process(delay1)
---begin
-	--if rising_edge(delay1) then
-		--clear input to start time interval
-	--end if;
-
---end process;
-
---end bah;
