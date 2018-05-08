@@ -30,22 +30,29 @@ architecture Behavioral of Controller is
 	signal PedNSButtonPressed, PedEWButtonPressed : std_logic;
 begin
    StateProcess:
-   process (reset, clock)
+   process (Reset, Clock, State)
    begin
       if (reset = '1') then
          State <= NSGreen;
       elsif rising_edge(clock) then
-         if PedEW = '1' then
+			if PedEW = '1' then
 				PedNSButtonPressed <= '1';
 			elsif PedNS = '1' then
 				PedEWButtonPressed <= '1';
 			end if;
 			State <= NextState;
       end if;
+		if State = NSGreen then
+			PedNSButtonPressed <= '0';
+		end if;
+		if State = EWGreen then
+			PedEWButtonPressed <= '0';
+		end if;
+			
    end process StateProcess;
    
 	CombinationalProcess:
-	process(state, PedNSButtonPressed, PedEWButtonPressed)
+	process(State, PedNSButtonPressed, PedEWButtonPressed)
 	begin
 		-- default values for outputs
 		LightsEW <= RED;
@@ -65,7 +72,7 @@ begin
 				NextState <= EWGreen;
 			when EWGreen =>
 				if PedEWButtonPressed = '1' then
-					LightsEW <= WALK;
+					LightsEW <= WALK;	
 				else
 					LightsEW <= GREEN;
 				end if;
@@ -75,4 +82,5 @@ begin
 				NextState <= NSGreen;
 		end case;
 	end process;
+
 end Behavioral;
