@@ -42,6 +42,8 @@ begin
 			end if;
 			State <= NextState;
       end if;
+	      --there is two way communication so need 2 signals
+	      -- the signal coming back from the combinational peocess resets the button remeber signal
 		if State = NSGreen then
 			PedNSButtonPressed <= '0';
 		end if;
