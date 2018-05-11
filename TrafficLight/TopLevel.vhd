@@ -38,6 +38,8 @@ architecture Behavioral of Traffic is
 	signal SynchPedEW, SynchPedNS, SynchCarEW, SynchCarNS : std_logic;
 	--delay values
 	signal delay_1s : STD_LOGIC;
+	--clock controls
+	signal Clear, CountEn : STD_LOGIC;
 begin
    -- Show reset status on FPGA LED
    debugLed <= Reset; 
@@ -61,12 +63,12 @@ begin
 		--sensitive to state (green light)
 		
 	--TODO:
-	--counter (timer to delay state change)
-	--pedestrian lights
-	--car presence changes lights (States) starts the counters
+	--counter (timer to delay state change) /done i think
+	--pedestrian lights / done i think
+	--car or pedestrain presence changes lights (States) starts the counters /done i think
 	--synchronise inputs / done i think
 	
-	inputSynch: --synchronise inputs through a flipflop
+	InputSynch: --synchronise inputs through a flipflop
 	process(clock, reset, CarEW, CarNS, PedEW, PedNS)
 	begin
 		if reset = '1' then
@@ -86,14 +88,17 @@ begin
 	Entity work.Counter
    Port Map (
            Reset => Reset,
-           Clock => Clock 
+			  Clear => Clear,
+           Clock => Clock,
+			  CountEn => CountEn,
+			  delay_1s => delay_1s			  
            );
 			  
 	Controller:
 	Entity work.Controller
    Port Map (
-           reset => reset,
-           clock => clock,
+           Reset => Reset,
+           Clock => Clock,
            
            -- External Inputs
            PedEW => SynchPedEW, 
@@ -106,6 +111,8 @@ begin
 			  LightsNS => LightsNS,
            
            -- Counter control
+			  Clear => Clear,
+			  CountEn => CountEn,
 			  delay_1s => delay_1s
            );
 end;
