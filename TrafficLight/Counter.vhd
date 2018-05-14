@@ -10,7 +10,7 @@ entity Counter is
 end Counter;
 
 architecture Behavioral of Counter is
-	constant DELAY : integer := 50; -- 1 second
+	constant DELAY : integer := 100; -- 1 second
 	signal Count : natural range 0 to DELAY; --counter
 begin
 	Timer:
