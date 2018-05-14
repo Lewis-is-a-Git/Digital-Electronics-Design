@@ -39,13 +39,28 @@ architecture Behavioral of Traffic is
 	--delay values
 	signal delay_1s : STD_LOGIC;
 	--clock controls
-	signal Clear, CountEn : STD_LOGIC;
+	signal CountEn : STD_LOGIC;
 begin
    -- Show reset status on FPGA LED
    debugLed <= Reset; 
    
    -- Threee LEDs for debug 
-   LEDs <= "000";
+	process (CarEW, CarNS, PedEW, PedNS)
+	begin
+	LEDs <= "000";
+   if CarEW = '1' then
+		LEDs <= "100";
+	end if;
+	if CarNS = '1' then
+		LEDs <= "010";
+	end if;
+	if PedEW = '1' then
+		LEDs <= "001";
+	end if;
+	if pedNS = '1' then
+		LEDs <= "011";
+	end if;
+	end process;
    
 	--4 different states
 	--timer to extend time on each state
@@ -63,7 +78,7 @@ begin
 		--sensitive to state (green light)
 		
 	--TODO:
-	--counter (timer to delay state change) /done i think
+	--counter (timer to delay state change) /done
 	--pedestrian lights / done i think
 	--car or pedestrain presence changes lights (States) starts the counters /done i think
 	--synchronise inputs / done i think
@@ -88,7 +103,6 @@ begin
 	Entity work.Counter
    Port Map (
            Reset => Reset,
-			  Clear => Clear,
            Clock => Clock,
 			  CountEn => CountEn,
 			  delay_1s => delay_1s			  
@@ -111,7 +125,6 @@ begin
 			  LightsNS => LightsNS,
            
            -- Counter control
-			  Clear => Clear,
 			  CountEn => CountEn,
 			  delay_1s => delay_1s
            );
