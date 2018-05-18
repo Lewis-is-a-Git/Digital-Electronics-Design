@@ -29,7 +29,6 @@ entity Traffic is
            -- Light control
            LightsEW   : out STD_LOGIC_VECTOR (1 downto 0); -- controls EW lights
            LightsNS   : out STD_LOGIC_VECTOR (1 downto 0)  -- controls NS lights
-           
            );
 end Traffic;
 
@@ -37,51 +36,15 @@ architecture Behavioral of Traffic is
 	--synched inputs
 	signal SynchPedEW, SynchPedNS, SynchCarEW, SynchCarNS : std_logic;
 	--delay values
-	signal delay_1s : STD_LOGIC;
+	signal Delay_1s : STD_LOGIC;
+	signal Delay_2s : STD_LOGIC;
+	signal Delay_3s : STD_LOGIC;
 	--clock controls
 	signal CountEn : STD_LOGIC;
 begin
    -- Show reset status on FPGA LED
-   debugLed <= Reset; 
-   
-   -- Threee LEDs for debug 
-	process (CarEW, CarNS, PedEW, PedNS)
-	begin
+   debugLed <= Reset;
 	LEDs <= "000";
-   if CarEW = '1' then
-		LEDs <= "100";
-	end if;
-	if CarNS = '1' then
-		LEDs <= "010";
-	end if;
-	if PedEW = '1' then
-		LEDs <= "001";
-	end if;
-	if pedNS = '1' then
-		LEDs <= "011";
-	end if;
-	end process;
-   
-	--4 different states
-	--timer to extend time on each state
-	-- greenNS means redEW so dont need red states
-	
-	--single point synchronisation of external inputs
-			--idea jsut a flip flop process
-	
-	--input synch to pedestrian mem or state machine (2 proceesses) and need a counter
-	-- 2 modules statemachine and counter
-	
-	-- controls timer(mealey) lights (more)
-	
-	-- seporate register to remeber paedestrain button presses (just a flip flop)
-		--sensitive to state (green light)
-		
-	--TODO:
-	--counter (timer to delay state change) /done
-	--pedestrian lights / done i think
-	--car or pedestrain presence changes lights (States) starts the counters /done i think
-	--synchronise inputs / done i think
 	
 	InputSynch: --synchronise inputs through a flipflop
 	process(clock, reset, CarEW, CarNS, PedEW, PedNS)
@@ -105,7 +68,9 @@ begin
            Reset => Reset,
            Clock => Clock,
 			  CountEn => CountEn,
-			  delay_1s => delay_1s			  
+			  Delay_1s => delay_1s,
+			  Delay_2s => delay_2s,
+			  Delay_3s => delay_3s
            );
 			  
 	Controller:
@@ -126,6 +91,8 @@ begin
            
            -- Counter control
 			  CountEn => CountEn,
-			  delay_1s => delay_1s
+			  Delay_1s => delay_1s,
+			  Delay_2s => delay_2s,
+			  Delay_3s => delay_3s
            );
 end;
