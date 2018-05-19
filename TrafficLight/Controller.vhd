@@ -10,9 +10,9 @@ entity Controller is
 			  CarEW : in STD_LOGIC; --synched car east west button
 			  CarNS : in STD_LOGIC; --synched car north south button
 			  --delays to slow down the system
-			  Delay_1s : in STD_LOGIC; --1 second delay for amber light
-			  Delay_2s : in STD_LOGIC; --2 second delay for new green light minimum time
-			  Delay_3s : in STD_LOGIC; --3 second delay for pedestrain crossing
+			  DelayAmber : in STD_LOGIC; --delay for amber light
+			  DelayMin : in STD_LOGIC; --delay for new green light minimum time
+			  DelayPed : in STD_LOGIC; --delay for pedestrain crossing
 			  CountEn : out STD_LOGIC; --only use the counter if it is enabled also clears
 			  LightsEW : out STD_LOGIC_VECTOR(1 downto 0); --light output east west
 			  LightsNS : out STD_LOGIC_VECTOR(1 downto 0) --light output north south
@@ -64,7 +64,7 @@ begin
    
 	CombinationalProcess:
 	process(State, PedNSButtonPressed, PedEWButtonPressed, 
-			  CarEW, CarNS, Delay_1s, Delay_2s, Delay_3s)
+			  CarEW, CarNS, DelayAmber, DelayMin, DelayPed)
 	begin
 		-- default values for outputs
 		LightsEW <= RED;
@@ -82,7 +82,7 @@ begin
 				--wait for input from the other direction
 				if PedEWButtonPressed = '1' or CarEW = '1' then 
 					CountEn <= '1'; -- enable the counter
-					if Delay_2s = '1' then --wait for the delay
+					if DelayMin = '1' then --wait for the delay
 						NextState <= NSAmber; --go to next state
 						CountEn <= '0';
 					end if;
@@ -92,7 +92,7 @@ begin
 				LightsNS <= WALK;
 				ClearPedNSButtonPressed <= '1'; --clear pedestrain button
 				CountEn <= '1'; -- enable the counter
-				if Delay_3s = '1' then --wait for the delay
+				if DelayPed = '1' then --wait for the delay
 					NextState <= NSGreen; --go to next state
 					CountEn <= '0';
 				end if;
@@ -100,7 +100,7 @@ begin
 			when NSAmber => --swap directions of lights
 				LightsNS <= AMBER;
 				CountEn <= '1';
-				if Delay_1s = '1' then --wait for the delay
+				if DelayAmber = '1' then --wait for the delay
 					if PedEWButtonPressed = '1' then
 						NextState <= EWWalk;
 					else
@@ -114,7 +114,7 @@ begin
 				--wait for input from the other direction
 				if PedNSButtonPressed = '1' or CarNS = '1' then 
 					CountEn <= '1'; -- enable the counter
-					if Delay_2s = '1' then --wait for the delay
+					if DelayMin = '1' then --wait for the delay
 						NextState <= EWAmber; --go to next state
 						CountEn <= '0';
 					end if;
@@ -124,7 +124,7 @@ begin
 				LightsEW <= WALK;
 				ClearPedEWButtonPressed <= '1'; --clear pedestrain button
 				CountEn <= '1'; -- enable the counter
-				if Delay_3s = '1' then --wait for the delay
+				if DelayPed = '1' then --wait for the delay
 					NextState <= EWGreen; --go to next state
 					CountEn <= '0';
 				end if;
@@ -132,7 +132,7 @@ begin
 			when EWAmber =>
 				LightsEW <= AMBER;
 				CountEn <= '1'; -- enable the counter
-				if Delay_1s = '1' then --wait for the delay
+				if DelayAmber = '1' then --wait for the delay
 					if PedNSButtonPressed = '1' then
 						NextState <= NSWalk;
 					else
