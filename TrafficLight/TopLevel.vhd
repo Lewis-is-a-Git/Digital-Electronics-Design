@@ -36,9 +36,9 @@ architecture Behavioral of Traffic is
 	--synched inputs
 	signal SynchPedEW, SynchPedNS, SynchCarEW, SynchCarNS : std_logic;
 	--delay values
-	signal Delay_1s : STD_LOGIC;
-	signal Delay_2s : STD_LOGIC;
-	signal Delay_3s : STD_LOGIC;
+	signal DelayAmber : STD_LOGIC; --delay for amber light
+	signal DelayMin : STD_LOGIC; --Minimum wait time
+	signal DelayPed : STD_LOGIC; --delay for pedestrain crossing
 	--clock controls
 	signal CountEn : STD_LOGIC;
 begin
@@ -67,10 +67,12 @@ begin
    Port Map (
            Reset => Reset,
            Clock => Clock,
+			  
+			  --counter control
 			  CountEn => CountEn,
-			  Delay_1s => delay_1s,
-			  Delay_2s => delay_2s,
-			  Delay_3s => delay_3s
+			  DelayAmber => DelayAmber,
+			  DelayMin => DelayMin,
+			  DelayPed => DelayPed
            );
 			  
 	Controller:
@@ -91,8 +93,8 @@ begin
            
            -- Counter control
 			  CountEn => CountEn,
-			  Delay_1s => delay_1s,
-			  Delay_2s => delay_2s,
-			  Delay_3s => delay_3s
+			  DelayAmber => DelayAmber,
+			  DelayMin => DelayMin,
+			  DelayPed => DelayPed
            );
 end;
