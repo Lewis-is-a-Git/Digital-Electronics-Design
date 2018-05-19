@@ -7,14 +7,14 @@ entity Counter is
            Clock : in  STD_LOGIC; --clock
 			  CountEn : in STD_LOGIC; --enable the counter, also clears
 			  --wait for the delay so the lights dont change on clock edge
-           Delay_1s : out  STD_LOGIC;
-			  Delay_2s : out  STD_LOGIC;
-           Delay_3s : out  STD_LOGIC); 			  
+           DelayAmber : out  STD_LOGIC; --delay for amber light
+			  DelayMin : out  STD_LOGIC; --delay for minimum wait time
+           DelayPed : out  STD_LOGIC); --delay for pedestrain crossing			  
 end Counter;
 
 architecture Behavioral of Counter is
-	constant DELAY : integer := 300; -- 3 seconds
-	signal Count : natural range 0 to DELAY; --counter
+	constant MAX : integer := 300; -- 3 seconds
+	signal Count : natural range 0 to MAX; --counter
 begin
 	Timer:
    process (Reset, Clock)
@@ -23,7 +23,7 @@ begin
          Count <= 0;
       elsif rising_edge(clock) then
 			if CountEn = '1' then -- if count is enabled
-				if Count < DELAY then
+				if Count < MAX then
 					Count <= Count + 1; -- count
 				else
 					Count <= 0;
@@ -34,7 +34,7 @@ begin
       end if;
    end process;
 	
-	Delay_1s <= '1' when (Count = 100) else '0'; -- 1 second
-   Delay_2s <= '1' when (Count = 200) else '0'; -- 2 seconds
-	Delay_3s <= '1' when (Count = 300) else '0'; -- 3 seconds
+	DelayAmber <= '1' when (Count = 100) else '0'; -- 1 second
+   DelayMin <= '1' when (Count = 200) else '0'; -- 2 seconds
+	DelayPed <= '1' when (Count = 300) else '0'; -- 3 seconds
 end Behavioral;
