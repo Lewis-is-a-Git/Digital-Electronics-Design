@@ -46,7 +46,8 @@ begin
 			--remeber if a button is pressed
 			if PedEW = '1' then
 				PedEWButtonPressed <= '1';
-			elsif PedNS = '1' then
+			end if;
+			if PedNS = '1' then
 				PedNSButtonPressed <= '1';
 			end if;
 			
